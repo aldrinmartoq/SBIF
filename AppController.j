@@ -83,9 +83,9 @@ function graphSBIF(year,w,h,a,b) {
     [buscarSpinner setHidden:NO];
     [buscarButton setEnabled:NO];
     
-    var urlUF = "http://api.sbif.cl/api-sbif/recursos/uf/" + year + "?apikey=b7e4ef2d3b8ed7e62a1fba8bcc50a97a536e6d98&formato=json";
-    var urlDolar = "http://api.sbif.cl/api-sbif/recursos/dolar/" + year + "?apikey=b7e4ef2d3b8ed7e62a1fba8bcc50a97a536e6d98&formato=json";
-    var urlEuro = "http://api.sbif.cl/api-sbif/recursos/euro/" + year + "?apikey=b7e4ef2d3b8ed7e62a1fba8bcc50a97a536e6d98&formato=json";
+    var urlUF = "api-sbif.php/recursos/uf/" + year;
+    var urlDolar = "api-sbif.php/recursos/dolar/" + year;
+    var urlEuro = "api-sbif.php/recursos/euro/" + year;
     
     CPLog.debug('uf   : ' + urlUF);
     CPLog.debug('dolar: ' + urlDolar);
