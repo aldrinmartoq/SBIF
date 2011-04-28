@@ -99,7 +99,8 @@ function graphSBIF(year,w,h,a,b) {
     
     datos = {};
     fechas = [];
-    
+    [table reloadData];
+
     urlUF = [CPURLConnection connectionWithRequest:reqUF delegate:self];
     urlDolar = [CPURLConnection connectionWithRequest:reqDolar delegate:self];
     urlEuro = [CPURLConnection connectionWithRequest:reqEuro delegate:self];
@@ -171,10 +172,10 @@ function graphSBIF(year,w,h,a,b) {
     }
     
     count--;
+    fechas.sort();
+    [table reloadData];
 
     if (count == 0) {
-        fechas.sort();
-        [table reloadData];
 
         [buscarSpinner setHidden:YES];
         [buscarButton setEnabled:YES];        
