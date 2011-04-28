@@ -6,9 +6,12 @@
  * Copyright 2011, Your Company All rights reserved.
  */
 
-function graphSBIF(w,h,a,b) {
+function graphSBIF(year,w,h,a,b) {
+    if (w > 1000) {
+        w = 1000;
+    }
     var urlPart1 = "https://chart.googleapis.com/chart?cht=lc&chd=t:";
-    var urlPart2 = "&chs=" + w + "x" + h + "&chco=0000FF,00FF00&chtt=Powered+by+Huevapi|Valores+financieros+2011&chxl=0:|Ene|Feb|Mar|Abr&chxt=x,y";
+    var urlPart2 = "&chs=" + w + "x" + h + "&chco=0000FF,00FF00&chtt=Powered+by+Huevapi|Indicadores+Financieros+" + year + "&chxl=0:|Ene|Feb|Mar|Abr&chxt=x,y";
     var urlData = "";
     for(var i =0;i<a.length;i++)    {
         urlData = urlData + a[i]
@@ -33,12 +36,12 @@ function graphSBIF(w,h,a,b) {
 @implementation AppController : CPObject
 {
     @outlet CPWindow        theWindow; //this "outlet" is connected automatically by the Cib
+    @outlet CPTabView       tabView;
     @outlet CPTableView     table;
     @outlet CPPopUpButton   yearPopUpButton;
     @outlet CPImageView     buscarSpinner;
     @outlet CPButton        buscarButton;
     @outlet CPWebView       webView;
-    @outlet CPTabView       tabView;
     
     @outlet CPView          paso1;
     
@@ -101,6 +104,8 @@ function graphSBIF(w,h,a,b) {
     urlUF = [CPURLConnection connectionWithRequest:reqUF delegate:self];
     urlDolar = [CPURLConnection connectionWithRequest:reqDolar delegate:self];
     urlEuro = [CPURLConnection connectionWithRequest:reqEuro delegate:self];
+    
+    [webView setMainFrameURL:null];
 }
 
 - (void)connection:(CPURLConnection)aConnection didReceiveData:(CPString)data {
@@ -164,45 +169,35 @@ function graphSBIF(w,h,a,b) {
     
     count--;
 
+    fechas.sort();
+    [table reloadData];
+
     if (count == 0) {
-        fechas.sort();
-        [table reloadData];
         [buscarSpinner setHidden:YES];
         [buscarButton setEnabled:YES];        
-        
-        
-        
+
         var d1 = new Array();
         var e1 = new Array();
         var d2 = new Array();
         var e2 = new Array();
+
+        for (var i in fechas) {
+            var x = datos[fechas[i]];
+            var ii = Math.floor(i/4);
+            d1.push(x ? x.dolar : d1[d1.length - 1]);
+            e1.push(x ? x.euro : e1[e1.length - 1]);
+            if (i % 4 == 1) {
+                d2[ii] = (d1[i] + d1[i-1] + d1[i-2] + d1[i-3]) / 4;
+                e2[ii] = (e1[i] + e1[i-1] + e1[i-2] + e1[i-3]) / 4;
+                d2[ii] = d2[ii] ? d2[ii] : 0;
+                e2[ii] = e2[ii] ? e2[ii] : 0;
+                CPLog.debug(' i:' + i + ' ' + ii + ' d: ' + d1[i] + ' / ' + d2[ii] + ' e: ' + e1[i] + ' / ' + e2[ii]);
+            }
+        }
         
-        // [webView loadHTMLString:s];
-        
-        var labels = [1,2,3,4];
-        var datas = [5,6,7,8];
-        CPLog.debug('labels: ' + labels + ' datas: ' + datas);
-        var r = [webView objectByEvaluatingJavaScriptFromString:"ejecuta([0,1,2],[0,'',2])"];
-        // var r = [[webView windowScriptObject] callWebScriptMethod:"ejecuta" withArguments:[labels, datas]];
-        CPLog.debug('r: ' + r);
-        
-        
-        // for (var i in fechas) {
-        //     var x = datos[fechas[i]];
-        //     var ii = Math.floor(i/4);
-        //     d1.push(x ? x.dolar : d1[d1.length - 1]);
-        //     e1.push(x ? x.euro : e1[e1.length - 1]);
-        //     if (i % 4 == 1) {
-        //         d2[ii] = (d1[i] + d1[i-1] + d1[i-2] + d1[i-3]) / 4;
-        //         e2[ii] = (e1[i] + e1[i-1] + e1[i-2] + e1[i-3]) / 4;
-        //         d2[ii] = d2[ii] ? d2[ii] : 0;
-        //         e2[ii] = e2[ii] ? e2[ii] : 0;
-        //         CPLog.debug(' i:' + i + ' ' + ii + ' d: ' + d1[i] + ' / ' + d2[ii] + ' e: ' + e1[i] + ' / ' + e2[ii]);
-        //     }
-        // }
-        // 
-        // var frame = [webView frame];
-        // [webView setMainFrameURL:graphSBIF(frame.size.width, frame.size.height, d2,e2)];
+        var frame = [webView frame];
+        var year = [[yearPopUpButton selectedItem] title];
+        [webView setMainFrameURL:graphSBIF(year, frame.size.width, frame.size.height, d2,e2)];
     }
 }
 
