@@ -76,7 +76,6 @@ function graphSBIF(year,w,h,a,b) {
     for (var i = 2011; i > 2000; i--) {
         [yearPopUpButton addItemWithTitle:"" + i];
     }
-    [webView setMainFrameURL:"t.html"];
 }
 
 - (@action)buscar:(id)sender {
@@ -109,6 +108,7 @@ function graphSBIF(year,w,h,a,b) {
 }
 
 - (void)connection:(CPURLConnection)aConnection didReceiveData:(CPString)data {
+    CPLog.debug('data: ' + data);
     var tmp = [data objectFromJSON];
     
     if (aConnection == urlUF) {
