@@ -108,63 +108,66 @@ function graphSBIF(year,w,h,a,b) {
 }
 
 - (void)connection:(CPURLConnection)aConnection didReceiveData:(CPString)data {
-    CPLog.debug('data: ' + data);
-    var tmp = [data objectFromJSON];
-    
-    if (aConnection == urlUF) {
-        for (var i in tmp.UFs) {
-            var f = tmp.UFs[i].Fecha;
-            var v = tmp.UFs[i].Valor;
-            
-            if (!f && !v) {
-                break;
+    try {
+        var tmp = [data objectFromJSON];
+
+        if (aConnection == urlUF) {
+            for (var i in tmp.UFs) {
+                var f = tmp.UFs[i].Fecha;
+                var v = tmp.UFs[i].Valor;
+
+                if (!f && !v) {
+                    break;
+                }
+
+                if (!datos[f]) {
+                    datos[f] = {};
+                    datos[f].fecha = f;
+                    fechas.push(f);
+                }
+                datos[f].uf = v;
             }
-            
-            if (!datos[f]) {
-                datos[f] = {};
-                datos[f].fecha = f;
-                fechas.push(f);
+        } else if (aConnection == urlDolar) {
+            for (var i in tmp.Dolares) {
+                var f = tmp.Dolares[i].Fecha;
+                var v = tmp.Dolares[i].Valor;
+
+                if (!f && !v) {
+                    break;
+                }
+
+                if (!datos[f]) {
+                    datos[f] = {};
+                    datos[f].fecha = f;
+                    fechas.push(f);
+                }
+                v = v.replace('.', '');
+                v = v.replace(',', '.');
+
+                datos[f].dolar = parseFloat(v);
             }
-            datos[f].uf = v;
-        }
-    } else if (aConnection == urlDolar) {
-        for (var i in tmp.Dolares) {
-            var f = tmp.Dolares[i].Fecha;
-            var v = tmp.Dolares[i].Valor;
-            
-            if (!f && !v) {
-                break;
+        } else if (aConnection == urlEuro) {
+            for (var i in tmp.Euros) {
+                var f = tmp.Euros[i].Fecha;
+                var v = tmp.Euros[i].Valor;
+
+                if (!f && !v) {
+                    break;
+                }
+
+                if (!datos[f]) {
+                    datos[f] = {};
+                    datos[f].fecha = f;
+                    fechas.push(f);
+                }
+                v = v.replace('.', '');
+                v = v.replace(',', '.');
+
+                datos[f].euro = parseFloat(v);
             }
-            
-            if (!datos[f]) {
-                datos[f] = {};
-                datos[f].fecha = f;
-                fechas.push(f);
-            }
-            v = v.replace('.', '');
-            v = v.replace(',', '.');
-            
-            datos[f].dolar = parseFloat(v);
-        }
-    } else if (aConnection == urlEuro) {
-        for (var i in tmp.Euros) {
-            var f = tmp.Euros[i].Fecha;
-            var v = tmp.Euros[i].Valor;
-            
-            if (!f && !v) {
-                break;
-            }
-            
-            if (!datos[f]) {
-                datos[f] = {};
-                datos[f].fecha = f;
-                fechas.push(f);
-            }
-            v = v.replace('.', '');
-            v = v.replace(',', '.');
-            
-            datos[f].euro = parseFloat(v);
-        }
+        }        
+    } catch (err) {
+        CPLog.debug('error: ' + err);
     }
     
     count--;
