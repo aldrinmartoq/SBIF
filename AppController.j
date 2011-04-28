@@ -169,10 +169,10 @@ function graphSBIF(year,w,h,a,b) {
     
     count--;
 
-    fechas.sort();
-    [table reloadData];
-
     if (count == 0) {
+        fechas.sort();
+        [table reloadData];
+
         [buscarSpinner setHidden:YES];
         [buscarButton setEnabled:YES];        
 
