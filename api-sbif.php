@@ -9,10 +9,12 @@ $cachetime = 120 * 60; // 2 horas
 if (file_exists($cache) && (time() - $cachetime < filemtime($cache))) {
 	//echo file_get_contents($cache);
 } else {
-	$url = "http://api.sbif.cl/api-sbif".$url."?apikey=b7e4ef2d3b8ed7e62a1fba8bcc50a97a536e6d98&formato=json";
+	$apikey = trim(file_get_contents('.apikey'));
+	$url = "http://api.sbif.cl/api-sbif".$url."?apikey=".$apikey."&formato=json";
 	$data = file_get_contents($url);
 	$fp = fopen($cache, 'w');
 	fwrite($fp, $data);
 	fclose($fp);
 }
 echo file_get_contents($cache);
+
