@@ -66,7 +66,7 @@
             return;
         }
 
-        var lines = r.g.linechart(20, 20, w - 30, h - 30, xList, yList,
+        var lines = r.g.linechart(40, 20, w - 80, h - 40, xList, yList,
             {   nostroke: false,
                     axis: "1 1 1 1",
                   symbol: "o",
