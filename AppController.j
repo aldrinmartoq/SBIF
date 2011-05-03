@@ -22,6 +22,7 @@
     @outlet CPCheckBox      checkDolar;
     @outlet CPCheckBox      checkEuro;
     @outlet CPCheckBox      checkLog;
+    @outlet CPTextField     labelTiempo;
     
     @outlet CPView          paso1;
     
@@ -212,6 +213,16 @@
         datasetEuro = [ex, ey, el];
         
         [self redibujar:self];
+        if (window.tiempoInicial) {
+            var args = [[CPApplication sharedApplication] arguments];
+
+            if ([args containsObject:"tiempo"]) {
+                var tiempoFinal = new Date();
+                var delta = tiempoFinal.getTime() - window.tiempoInicial.getTime();
+                [labelTiempo setStringValue:"listo en " + delta + " ms"];
+            }
+            window.tiempoInicial = null;
+        }
     }
 }
 
