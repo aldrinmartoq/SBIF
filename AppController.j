@@ -41,7 +41,6 @@
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification {
     CPLog.debug('termine!');
-    [self buscar:self];
 }
 
 - (void)awakeFromCib {
@@ -65,6 +64,8 @@
     for (var i = 2011; i > 2000; i--) {
         [yearPopUpButton addItemWithTitle:"" + i];
     }
+
+    [self buscar:self];
 }
 
 - (@action)buscar:(id)sender {

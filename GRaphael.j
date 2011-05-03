@@ -43,7 +43,6 @@
 }
 
 - (void)addDataset:(CPString)name ValuesX:(CPArray)xVals ValuesY:(CPArray)yVals  {
-    CPLog.debug('adding dataset: ' + name + ' X: ' + xVals + ' Y: ' + yVals);
     if (xVals.length < 1) {
         return;
     }
@@ -58,7 +57,6 @@
 
 - (void)drawRaphael {
     try {
-        CPLog.debug('drawing raphael!');
         var f = [self frame],
             w = f.size.width,
             h = f.size.height;
@@ -67,7 +65,6 @@
         if (datasets.length < 1) {
             return;
         }
-        CPLog.debug('drawing raphael OH YES! ' + yList);
 
         var lines = r.g.linechart(20, 20, w - 30, h - 30, xList, yList,
             {   nostroke: false,
