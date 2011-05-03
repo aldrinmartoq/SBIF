@@ -51,7 +51,7 @@
     datasetDolar = [[],[],[]];
     datasetEuro = [[],[],[]];
 
-    [tabView setBackgroundColor:[CPColor whiteColor]];
+    [paso1 setBackgroundColor:[CPColor whiteColor]];
     
     var tabViewItem1 = [[CPTabViewItem alloc] initWithIdentifier:"Indicadores"];
     [tabViewItem1 setView:paso1];
