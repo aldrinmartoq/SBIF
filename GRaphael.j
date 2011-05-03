@@ -42,17 +42,17 @@
     [self drawRaphael];
 }
 
-- (void)addDataset:(JSObject)dataset {
-    CPLog.debug('adding dataset: ' + dataset[0].length + ' ' + dataset[1].length);
-    if (dataset[0].length < 1 || dataset[1].length < 1) {
+- (void)addDataset:(CPString)name ValuesX:(CPArray)xVals ValuesY:(CPArray)yVals  {
+    CPLog.debug('adding dataset: ' + name + ' X: ' + xVals + ' Y: ' + yVals);
+    if (xVals.length < 1) {
         return;
     }
-    datasets.push([dataset[0], dataset[1]]);
-    yList = [];
+    datasets.push([xVals, yVals]);
     xList = [];
+    yList = [];
     for (var i=0,len=datasets.length; i<len; i++) {
-        yList.push(datasets[i][0]);
-        xList.push(datasets[i][1]);
+        xList.push(datasets[i][0]);
+        yList.push(datasets[i][1]);
     }
 }
 
@@ -69,7 +69,7 @@
         }
         CPLog.debug('drawing raphael OH YES! ' + yList);
 
-        var lines = r.g.linechart(20, 20, w - 30, h - 30, yList, xList,
+        var lines = r.g.linechart(20, 20, w - 30, h - 30, xList, yList,
             {   nostroke: false,
                     axis: "1 1 1 1",
                   symbol: "o",

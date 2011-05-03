@@ -21,6 +21,7 @@
     @outlet CPCheckBox      checkUF;
     @outlet CPCheckBox      checkDolar;
     @outlet CPCheckBox      checkEuro;
+    @outlet CPCheckBox      checkLog;
     
     @outlet CPView          paso1;
     
@@ -46,9 +47,9 @@
 - (void)awakeFromCib {
     datos = null;
     fechas = new Array();
-    datasetUF = [[],[]];
-    datasetDolar = [[],[]];
-    datasetEuro = [[],[]];
+    datasetUF = [[],[],[]];
+    datasetDolar = [[],[],[]];
+    datasetEuro = [[],[],[]];
 
     [tabView setBackgroundColor:[CPColor whiteColor]];
     
@@ -177,31 +178,37 @@
 
         var ex = [],
             ey = [],
+            el = [],
             ux = [],
             uy = [],
+            ul = [],
             dx = [],
-            dy = [];
+            dy = [],
+            dl = [];
 
         for (var i in fechas) {
             var x = datos[fechas[i]];
             if (x) {
                 if (x.dolar) {
-                    dy.push(i);
-                    dx.push(x.dolar);
+                    dx.push(i);
+                    dy.push(x.dolar);
+                    dl.push(Math.log(x.dolar));
                 }
                 if (x.euro) {
-                    ey.push(i);
-                    ex.push(x.euro);
+                    ex.push(i);
+                    ey.push(x.euro);
+                    el.push(Math.log(x.euro));
                 }
                 if (x.uf) {
-                    uy.push(i);
-                    ux.push(x.uf);
+                    ux.push(i);
+                    uy.push(x.uf);
+                    ul.push(Math.log(x.uf));
                 }
             }
         }
-        datasetUF = [uy, ux];
-        datasetDolar = [dy, dx];
-        datasetEuro = [ey, ex];
+        datasetUF = [ux, uy, ul];
+        datasetDolar = [dx, dy, dl];
+        datasetEuro = [ex, ey, el];
         
         [self redibujar:self];
     }
@@ -211,13 +218,25 @@
     [raphael removeAllDatasets];
 
     if ([checkUF state]) {
-        [raphael addDataset:datasetUF];
+        if ([checkLog state]) {
+            [raphael addDataset:"UF" ValuesX:datasetUF[0] ValuesY:datasetUF[2]];
+        } else {
+            [raphael addDataset:"UF" ValuesX:datasetUF[0] ValuesY:datasetUF[1]];
+        }
     }
     if ([checkDolar state]) {
-        [raphael addDataset:datasetDolar];
+        if ([checkLog state]) {
+            [raphael addDataset:"Dolar" ValuesX:datasetDolar[0] ValuesY:datasetDolar[2]];
+        } else {
+            [raphael addDataset:"Dolar" ValuesX:datasetDolar[0] ValuesY:datasetDolar[1]];
+        }
     }
     if ([checkEuro state]) {
-        [raphael addDataset:datasetEuro];
+        if ([checkLog state]) {
+            [raphael addDataset:"Euro" ValuesX:datasetEuro[0] ValuesY:datasetEuro[2]];
+        } else {
+            [raphael addDataset:"Euro" ValuesX:datasetEuro[0] ValuesY:datasetEuro[1]];
+        }
     }
 
     [raphael drawRaphael];
