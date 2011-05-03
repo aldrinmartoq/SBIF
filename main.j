@@ -10,7 +10,7 @@
 @import <AppKit/AppKit.j>
 
 @import "AppController.j"
-
+@import "GRaphael.j"
 
 function main(args, namedArgs)
 {

@@ -6,30 +6,6 @@
  * Copyright 2011, Your Company All rights reserved.
  */
 
-function graphSBIF(year,w,h,a,b) {
-    if (w > 1000) {
-        w = 1000;
-    }
-    var urlPart1 = "https://chart.googleapis.com/chart?cht=lc&chd=t:";
-    var urlPart2 = "&chs=" + w + "x" + h + "&chco=0000FF,00FF00&chtt=Powered+by+Huevapi|Indicadores+Financieros+" + year + "&chxl=0:|Ene|Feb|Mar|Abr&chxt=x,y";
-    var urlData = "";
-    for(var i =0;i<a.length;i++)    {
-        urlData = urlData + a[i]
-        if(i!=a.length-1) {
-            urlData = urlData + ",";
-        } 
-    }
-    urlData = urlData + "|";
-    for(var i =0;i<b.length;i++)    {
-        urlData = urlData + b[i]
-        if(i!=b.length-1) {
-            urlData = urlData + ",";
-        }
-    }
-    return urlPart1+urlData+urlPart2;
-}
-
-
 @import <Foundation/CPObject.j>
 
 
@@ -41,7 +17,10 @@ function graphSBIF(year,w,h,a,b) {
     @outlet CPPopUpButton   yearPopUpButton;
     @outlet CPImageView     buscarSpinner;
     @outlet CPButton        buscarButton;
-    @outlet CPWebView       webView;
+    @outlet GRaphael        raphael;
+    @outlet CPCheckBox      checkUF;
+    @outlet CPCheckBox      checkDolar;
+    @outlet CPCheckBox      checkEuro;
     
     @outlet CPView          paso1;
     
@@ -53,16 +32,25 @@ function graphSBIF(year,w,h,a,b) {
     CPObject                urlDolar;
     CPObject                urlEuro;
     JSObject                count;
+
+    JSObject                datasetUF;
+    JSObject                datasetDolar;
+    JSObject                datasetEuro;
 }
 
-- (void)applicationDidFinishLaunching:(CPNotification)aNotification
-{
-    // This is called when the application is done loading.
+- (void)applicationDidFinishLaunching:(CPNotification)aNotification {
+    CPLog.debug('termine!');
+    [self buscar:self];
 }
 
 - (void)awakeFromCib {
     datos = null;
     fechas = new Array();
+    datasetUF = [[],[]];
+    datasetDolar = [[],[]];
+    datasetEuro = [[],[]];
+
+    [tabView setBackgroundColor:[CPColor whiteColor]];
     
     var tabViewItem1 = [[CPTabViewItem alloc] initWithIdentifier:"Indicadores"];
     [tabViewItem1 setView:paso1];
@@ -82,10 +70,14 @@ function graphSBIF(year,w,h,a,b) {
     var year = [[yearPopUpButton selectedItem] title];
     [buscarSpinner setHidden:NO];
     [buscarButton setEnabled:NO];
+    [yearPopUpButton setEnabled:NO];
+    [raphael removeAllDatasets];
+
+    var prefix = "http://aldrin.martoq.cl/huevapi/SBIF/api-sbif.php/recursos/";
     
-    var urlUF = "api-sbif.php/recursos/uf/" + year;
-    var urlDolar = "api-sbif.php/recursos/dolar/" + year;
-    var urlEuro = "api-sbif.php/recursos/euro/" + year;
+    var urlUF = prefix + "uf/" + year;
+    var urlDolar = prefix + "dolar/" + year;
+    var urlEuro = prefix + "euro/" + year;
     
     CPLog.debug('uf   : ' + urlUF);
     CPLog.debug('dolar: ' + urlDolar);
@@ -105,7 +97,6 @@ function graphSBIF(year,w,h,a,b) {
     urlDolar = [CPURLConnection connectionWithRequest:reqDolar delegate:self];
     urlEuro = [CPURLConnection connectionWithRequest:reqEuro delegate:self];
     
-    [webView setMainFrameURL:null];
 }
 
 - (void)connection:(CPURLConnection)aConnection didReceiveData:(CPString)data {
@@ -126,7 +117,10 @@ function graphSBIF(year,w,h,a,b) {
                     datos[f].fecha = f;
                     fechas.push(f);
                 }
-                datos[f].uf = v;
+                v = v.replace('.', '');
+                v = v.replace(',', '.');
+
+                datos[f].uf = parseFloat(v);
             }
         } else if (aConnection == urlDolar) {
             for (var i in tmp.Dolares) {
@@ -179,30 +173,54 @@ function graphSBIF(year,w,h,a,b) {
 
         [buscarSpinner setHidden:YES];
         [buscarButton setEnabled:YES];        
+        [yearPopUpButton setEnabled:YES];
 
-        var d1 = new Array();
-        var e1 = new Array();
-        var d2 = new Array();
-        var e2 = new Array();
+        var ex = [],
+            ey = [],
+            ux = [],
+            uy = [],
+            dx = [],
+            dy = [];
 
         for (var i in fechas) {
             var x = datos[fechas[i]];
-            var ii = Math.floor(i/4);
-            d1.push(x ? x.dolar : d1[d1.length - 1]);
-            e1.push(x ? x.euro : e1[e1.length - 1]);
-            if (i % 4 == 1) {
-                d2[ii] = (d1[i] + d1[i-1] + d1[i-2] + d1[i-3]) / 4;
-                e2[ii] = (e1[i] + e1[i-1] + e1[i-2] + e1[i-3]) / 4;
-                d2[ii] = d2[ii] ? d2[ii] : 0;
-                e2[ii] = e2[ii] ? e2[ii] : 0;
-                CPLog.debug(' i:' + i + ' ' + ii + ' d: ' + d1[i] + ' / ' + d2[ii] + ' e: ' + e1[i] + ' / ' + e2[ii]);
+            if (x) {
+                if (x.dolar) {
+                    dy.push(i);
+                    dx.push(x.dolar);
+                }
+                if (x.euro) {
+                    ey.push(i);
+                    ex.push(x.euro);
+                }
+                if (x.uf) {
+                    uy.push(i);
+                    ux.push(x.uf);
+                }
             }
         }
+        datasetUF = [uy, ux];
+        datasetDolar = [dy, dx];
+        datasetEuro = [ey, ex];
         
-        var frame = [webView frame];
-        var year = [[yearPopUpButton selectedItem] title];
-        [webView setMainFrameURL:graphSBIF(year, frame.size.width, frame.size.height, d2,e2)];
+        [self redibujar:self];
     }
+}
+
+- (@action)redibujar:(id)sender {
+    [raphael removeAllDatasets];
+
+    if ([checkUF state]) {
+        [raphael addDataset:datasetUF];
+    }
+    if ([checkDolar state]) {
+        [raphael addDataset:datasetDolar];
+    }
+    if ([checkEuro state]) {
+        [raphael addDataset:datasetEuro];
+    }
+
+    [raphael drawRaphael];
 }
 
 // {'2011-04-27' : {
