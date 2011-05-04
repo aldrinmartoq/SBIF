@@ -194,17 +194,17 @@
                 if (x.dolar) {
                     dx.push(i);
                     dy.push(x.dolar);
-                    dl.push(Math.log(x.dolar));
+                    dl.push(dy.length < 1 ? 100 : 100 + (x.dolar - dy[0]) * 100 / dy[0]);
                 }
                 if (x.euro) {
                     ex.push(i);
                     ey.push(x.euro);
-                    el.push(Math.log(x.euro));
+                    el.push(ey.length < 1 ? 100 : 100 + (x.euro - ey[0]) * 100 / ey[0]);
                 }
                 if (x.uf) {
                     ux.push(i);
                     uy.push(x.uf);
-                    ul.push(Math.log(x.uf));
+                    ul.push(uy.length < 1 ? 100 : 100 + (x.uf - uy[0]) * 100 / uy[0]);
                 }
             }
         }
